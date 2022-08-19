@@ -1,95 +1,112 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { Edge, Node, Layout } from '@swimlane/ngx-graph';
 import { DagreNodesOnlyLayout } from './customDagreNodesOnly';
 import * as shape from 'd3-shape';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
+
+export class Employee {
+  id: string;
+  name: string;
+  office: string;
+  role: string;
+  backgroundColor: string;
+  upperManagerId?: string;
+}
 @Component({
   selector: 'my-app',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
-  name = 'Angular 5';
-  hierarchialGraph = { nodes: [], links: [] };
-  // curve = shape.curveBundle.beta(1);
-  curve = shape.curveLinear;
+export class AppComponent implements OnInit {
+  @Input() employees: Employee[] = [];
+
+  public nodes: Node[] = [];
+  public links: Edge[] = [];
   public layoutSettings = {
     orientation: 'TB',
   };
+  public curve: any = shape.curveLinear;
   public layout: Layout = new DagreNodesOnlyLayout();
 
-  public ngOnInit(): void {
-    this.showGraph();
-  }
-
-  showGraph() {
-    this.hierarchialGraph.nodes = [
-      {
-        id: 'start',
-        label: 'scan',
-        position: 'x0',
-      },
+  constructor() {
+    this.employees = [
       {
         id: '1',
-        label: 'Event#a',
-        position: 'x1',
+        name: 'Employee 1',
+        office: 'Office 1',
+        role: 'Manager',
+        backgroundColor: '#DC143C',
       },
       {
         id: '2',
-        label: 'Event#x',
-        position: 'x2',
+        name: 'Employee 2',
+        office: 'Office 2',
+        role: 'Engineer',
+        backgroundColor: '#00FFFF',
+        upperManagerId: '1',
       },
       {
         id: '3',
-        label: 'Event#b',
-        position: 'x3',
+        name: 'Employee 3',
+        office: 'Office 3',
+        role: 'Engineer',
+        backgroundColor: '#00FFFF',
+        upperManagerId: '1',
       },
       {
         id: '4',
-        label: 'Event#c',
-        position: 'x4',
+        name: 'Employee 4',
+        office: 'Office 4',
+        role: 'Engineer',
+        backgroundColor: '#00FFFF',
+        upperManagerId: '1',
       },
       {
         id: '5',
-        label: 'Event#y',
-        position: 'x5',
-      },
-      {
-        id: '6',
-        label: 'Event#z',
-        position: 'x6',
+        name: 'Employee 5',
+        office: 'Office 5',
+        role: 'Student',
+        backgroundColor: '#8A2BE2',
+        upperManagerId: '4',
       },
     ];
+  }
 
-    this.hierarchialGraph.links = [
-      {
-        source: 'start',
-        target: '1',
-        label: 'Process#1',
-      },
-      {
-        source: 'start',
-        target: '2',
-        label: 'Process#2',
-      },
-      {
-        source: '1',
-        target: '3',
-        label: 'Process#3',
-      },
-      {
-        source: '2',
-        target: '4',
-        label: 'Process#4',
-      },
-      {
-        source: '2',
-        target: '6',
-        label: 'Process#6',
-      },
-      {
-        source: '3',
-        target: '5',
-      },
-    ];
+  public ngOnInit(): void {
+    for (const employee of this.employees) {
+      const node: Node = {
+        id: employee.id,
+        label: employee.name,
+        data: {
+          office: employee.office,
+          role: employee.role,
+          backgroundColor: employee.backgroundColor,
+        },
+      };
+
+      this.nodes.push(node);
+    }
+
+    for (const employee of this.employees) {
+      if (!employee.upperManagerId) {
+        continue;
+      }
+
+      const edge: Edge = {
+        source: employee.upperManagerId,
+        target: employee.id,
+        label: '',
+        data: {
+          linkText: 'Manager of',
+        },
+      };
+
+      this.links.push(edge);
+    }
+  }
+
+  public getStyles(node: Node): any {
+    return {
+      'background-color': node.data.backgroundColor,
+    };
   }
 }
