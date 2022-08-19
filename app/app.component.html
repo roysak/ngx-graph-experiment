@@ -1,12 +1,14 @@
 <ngx-graph
-  class="chart-container"
-  [links]="hierarchialGraph.links"
-  [nodes]="hierarchialGraph.nodes"
-  [legend]="true"
+  [view]="[800, 500]"
+  [links]="links"
+  [nodes]="nodes"
   [curve]="curve"
   [layout]="layout"
+  [nodeWidth]="150"
+  [nodeHeight]="100"
   [layoutSettings]="layoutSettings"
-  [draggingEnabled]="false"
+  [enableZoom]="true"
+  [autoZoom]="true"
 >
   <ng-template #defsTemplate>
     <svg:marker
@@ -25,23 +27,21 @@
   <ng-template #nodeTemplate let-node>
     <svg:g
       class="node"
-      ngx-tooltip
-      [tooltipPlacement]="'top'"
-      [tooltipType]="'tooltip'"
-      [tooltipTitle]="node.position"
+      xmlns="http://www.w3.org/2000/xhtml"
+      width="150"
+      height="100"
     >
-      <svg:rect
-        [attr.width]="node.width"
-        [attr.height]="node.height"
-        [attr.fill]="node.options.color"
-      />
-      <svg:text
-        alignment-baseline="central"
-        [attr.x]="10"
-        [attr.y]="node.height / 2"
-      >
-        {{ node.label }}
-      </svg:text>
+      <svg:foreignObject width="150" height="100">
+        <xhtml:div
+          class="cardContainer"
+          xmlns="http://www.w3.org/1999/xhtml"
+          [ngStyle]="getStyles(node)"
+        >
+          <label class="name">{{ node.label }}</label>
+          <label>{{ node.data.role }}</label>
+          <label>{{ node.data.office }}</label>
+        </xhtml:div>
+      </svg:foreignObject>
     </svg:g>
   </ng-template>
 
@@ -54,13 +54,24 @@
       ></svg:path>
       <svg:text class="edge-label" text-anchor="middle">
         <textPath
-          style="fill: #666;"
+          class="text-path"
           [attr.href]="'#' + link.id"
-          startOffset="60%"
+          [style.dominant-baseline]="link.dominantBaseline"
+          startOffset="50%"
         >
           {{ link.label }}
         </textPath>
       </svg:text>
+    </svg:g>
+    <svg:g
+      class="linkMidpoint"
+      *ngIf="link.midPoint"
+      [attr.transform]="
+        'translate(' + link.midPoint.x + ',' + link.midPoint.y + ')'
+      "
+    >
+      <ellipse rx="30" ry="10" />
+      <svg:text alignment-baseline="central">{{ link.data.linkText }}</svg:text>
     </svg:g>
   </ng-template>
 </ngx-graph>
