@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { DagreNodesOnlyLayout } from './customDagreNodesOnly';
 import * as shape from 'd3-shape';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 @Component({
@@ -14,6 +15,7 @@ export class AppComponent {
   public layoutSettings = {
     orientation: 'TB',
   };
+  public layout: Layout = new DagreNodesOnlyLayout();
 
   public ngOnInit(): void {
     this.showGraph();
